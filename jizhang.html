@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>简易记账本</title>
+    <style>
+        *{margin:0;padding:0;box-sizing:border-box;font-family:system-ui}
+        body{background:#f5f7fa;padding:20px;max-width:700px;margin:0 auto}
+        .header{background:#fff;padding:20px;border-radius:12px;box-shadow:0 2px 8px #00000010;margin-bottom:20px}
+        .stat{display:flex;gap:16px;margin-top:16px}
+        .stat-item{flex:1;text-align:center;padding:12px;border-radius:8px}
+        .income{background:#e6f7ef;color:#009955}
+        .expense{background:#ffeef0;color:#ee4444}
+        .balance{background:#eef5ff;color:#2266dd}
+        .form-card{background:#fff;padding:20px;border-radius:12px;box-shadow:0 2px 8px #00000010;margin-bottom:20px}
+        .form-row{display:flex;gap:10px;margin-bottom:12px;flex-wrap:wrap}
+        input,select{padding:10px;border:1px solid #ddd;border-radius:8px;flex:1;min-width:100px;font-size:16px}
+        button{padding:10px 18px;border:none;border-radius:8px;background:#2266dd;color:#fff;font-size:16px;cursor:pointer}
+        button:hover{background:#1855bb}
+        .list-card{background:#fff;padding:20px;border-radius:12px;box-shadow:0 2px 8px #00000010}
+        .record-item{display:flex;justify-content:space-between;align-items:center;padding:12px 0;border-bottom:1px solid #eee}
+        .record-item:last-child{border-bottom:none}
+        .record-left{display:flex;flex-direction:column}
+        .record-type{font-size:14px;color:#666}
+        .record-amount{font-weight:bold;font-size:17px}
+        .del-btn{color:#ee4444;background:transparent;padding:6px 10px}
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h2>我的记账本</h2>
+        <div class="stat">
+            <div class="stat-item income">
+                <div>总收入</div>
+                <div id="totalIncome">¥0.00</div>
+            </div>
+            <div class="stat-item expense">
+                <div>总支出</div>
+                <div id="totalExpense">¥0.00</div>
+            </div>
+            <div class="stat-item balance">
+                <div>结余</div>
+                <div id="balance">¥0.00</div>
+            </div>
+        </div>
+    </div>
+
+    <div class="form-card">
+        <div class="form-row">
+            <select id="type">
+                <option value="expense">支出</option>
+                <option value="income">收入</option>
+            </select>
+            <input type="number" id="amount" placeholder="金额" step="0.01" min="0">
+            <input type="text" id="remark" placeholder="备注">
+            <button onclick="addRecord()">添加</button>
+        </div>
+    </div>
+
+    <div class="list-card">
+        <h3>收支记录</h3>
+        <div id="recordList"></div>
+    </div>
+
+<script>
+    let records = JSON.parse(localStorage.getItem('bookRecords')) || [];
+    const recordList = document.getElementById('recordList');
+    const totalIncomeEl = document.getElementById('totalIncome');
+    const totalExpenseEl = document.getElementById('totalExpense');
+    const balanceEl = document.getElementById('balance');
+
+    // 添加记录
+    function addRecord(){
+        const type = document.getElementById('type').value;
+        const amount = parseFloat(document.getElementById('amount').value);
+        const remark = document.getElementById('remark').value.trim();
+        if(isNaN(amount) || amount <=0){
+            alert("请输入有效的金额");
+            return;
+        }
+        records.push({
+            id: Date.now(),
+            type,
+            amount,
+            remark,
+            time: new Date().toLocaleString()
+        });
+        saveData();
+        render();
+        //清空输入框
+        document.getElementById('amount').value = '';
+        document.getElementById('remark').value = '';
+    }
+
+    // 删除记录
+    function delRecord(id){
+        records = records.filter(item=>item.id !== id);
+        saveData();
+        render();
+    }
+
+    //保存本地
+    function saveData(){
+        localStorage.setItem('bookRecords', JSON.stringify(records));
+    }
+
+    //渲染页面
+    function render(){
+        let html = '';
+        let income = 0, expense =0;
+        records.forEach(item=>{
+            if(item.type === 'income') income += item.amount;
+            else expense += item.amount;
+            const color = item.type === 'income' ? '#009955' : '#ee4444';
+            const sign = item.type === 'income' ? '+' : '-';
+            html += `
+                <div class="record-item">
+                    <div class="record-left">
+                        <div>${item.remark || '无备注'}</div>
+                        <div class="record-type">${item.time}</div>
+                    </div>
+                    <div style="display:flex;align-items:center;gap:12px">
+                        <div class="record-amount" style="color:${color}">${sign}¥${item.amount.toFixed(2)}</div>
+                        <button class="del-btn" onclick="delRecord(${item.id})">删除</button>
+                    </div>
+                </div>
+            `
+        })
+        recordList.innerHTML = html;
+        totalIncomeEl.textContent = `¥${income.toFixed(2)}`;
+        totalExpenseEl.textContent = `¥${expense.toFixed(2)}`;
+        balanceEl.textContent = `¥${(income-expense).toFixed(2)}`;
+    }
+    render();
+</script>
+</body>
+</html>
