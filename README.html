@@ -1,0 +1,452 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>纯天然</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        html, body {
+            width: 100%;
+            min-height: 100%;
+            overflow-x: hidden;
+            overflow-y: auto;
+            background: #000;
+        }
+
+        canvas {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            display: block;
+            z-index: 0;
+            pointer-events: none;
+        }
+
+        .page-content {
+            position: relative;
+            z-index: 10;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            padding: 80px;
+            box-sizing: border-box;
+        }
+
+        .top-text {
+            position: relative;
+            top: 0;
+            left: 0;
+            display: flex;
+            align-items: center;
+            gap: 40px;
+            pointer-events: none;
+        }
+
+        .text-content {
+            font-size: 100px;
+            font-weight: bold;
+            line-height: 1.4;
+            text-align: center;
+        }
+
+        .rainbow-text {
+            color: transparent;
+            background: linear-gradient(90deg, #ff0000, #ff7f00, #ffff00, #00ff00, #0000ff, #4b0082, #9400d3, #ff0000);
+            background-size: 200% auto;
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+            animation: flow 3s linear infinite;
+        }
+
+        .emoji {
+            color: #fff;
+        }
+
+        .sub-text {
+            font-size: 36px;
+            margin-top: 20px;
+        }
+
+        .avatar {
+            width: 220px;
+            height: auto;
+            border-radius: 20px;
+            box-shadow: 0 0 30px rgba(255, 255, 255, 0.3);
+        }
+
+        .homepage-links {
+            position: relative;
+            bottom: 0;
+            left: 0;
+            font-size: 24px;
+            color: #fff;
+            margin-top: 80px;
+        }
+
+        .links-title {
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+
+        .links-row a {
+            color: #00ffff;
+            text-decoration: none;
+            text-shadow: 0 0 10px rgba(0, 255, 255, 0.6);
+        }
+
+        .links-row a:hover {
+            text-shadow: 0 0 20px rgba(0, 255, 255, 0.9);
+        }
+
+        .link-gap {
+            display: inline-block;
+            width: 15ch;
+        }
+
+        .info-line {
+            margin-top: 8px;
+        }
+
+        .models-section {
+            margin-top: 60px;
+            font-size: 24px;
+            color: #fff;
+        }
+
+        .models-title {
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+
+        .model-line {
+            margin-top: 8px;
+        }
+
+        .model-line a {
+            color: #00ffff;
+            text-decoration: none;
+            text-shadow: 0 0 10px rgba(0, 255, 255, 0.6);
+        }
+
+        .model-line a:hover {
+            text-shadow: 0 0 20px rgba(0, 255, 255, 0.9);
+        }
+
+        .cta-text {
+            margin-top: 60px;
+            font-size: 32px;
+            font-weight: bold;
+            color: #ffff00;
+            text-shadow: 0 0 10px #ff9900, 0 0 20px #ff6600, 0 0 40px #ff3300;
+            animation: pulse 1.5s ease-in-out infinite;
+        }
+
+        .copy-link {
+            color: #00ffff;
+            text-shadow: 0 0 10px rgba(0, 255, 255, 0.6);
+            cursor: pointer;
+        }
+
+        .copy-link:hover {
+            text-shadow: 0 0 20px rgba(0, 255, 255, 0.9);
+        }
+
+        #toast {
+            position: fixed;
+            bottom: 100px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(0, 0, 0, 0.85);
+            color: #00ff00;
+            padding: 12px 24px;
+            border-radius: 8px;
+            font-size: 18px;
+            opacity: 0;
+            transition: opacity 0.3s;
+            pointer-events: none;
+            z-index: 100;
+        }
+
+        #toast.show {
+            opacity: 1;
+        }
+
+        @keyframes pulse {
+            0%, 100% { text-shadow: 0 0 10px #ff9900, 0 0 20px #ff6600, 0 0 40px #ff3300; }
+            50% { text-shadow: 0 0 20px #ffff00, 0 0 40px #ff9900, 0 0 60px #ff6600; }
+        }
+
+        @keyframes flow {
+            0% { background-position: 0% center; }
+            100% { background-position: 200% center; }
+        }
+    </style>
+</head>
+<body>
+    <canvas id="sky"></canvas>
+    <div class="page-content">
+        <div class="top-text">
+        <div class="text-content">
+            <span class="rainbow-text">你好</span>
+            <span class="emoji">😄</span>
+            <span class="rainbow-text">我是</span><br>
+            <span class="rainbow-text">纯天然</span>
+            <div class="sub-text">
+                <span class="emoji">🧑🏻‍💻</span>
+                <span class="rainbow-text">我编程不太厉害</span>
+                <span class="emoji">🧑🏻‍💻</span>
+            </div>
+        </div>
+<img class="avatar" src="data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/2wBDAAMCAgMCAgMDAwMEAwMEBQgFBQQEBQoHBwYIDAoMDAsKCwsNDhIQDQ4RDgsLEBYQERMUFRUVDA8XGBYUGBIUFRT/2wBDAQMEBAUEBQkFBQkUDQsNFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBT/wAARCAE8AD4DASIAAhEBAxEB/8QAHwAAAQUBAQEBAQEAAAAAAAAAAAECAwQFBgcICQoL/8QAtRAAAgEDAwIEAwUFBAQAAAF9AQIDAAQRBRIhMUEGE1FhByJxFDKBkaEII0KxwRVS0fAkM2JyggkKFhcYGRolJicoKSo0NTY3ODk6Q0RFRkdISUpTVFVWV1hZWmNkZWZnaGlqc3R1dnd4eXqDhIWGh4iJipKTlJWWl5iZmqKjpKWmp6ipqrKztLW2t7i5usLDxMXGx8jJytLT1NXW19jZ2uHi4+Tl5ufo6erx8vP09fb3+Pn6/8QAHwEAAwEBAQEBAQEBAQAAAAAAAAECAwQFBgcICQoL/8QAtREAAgECBAQDBAcFBAQAAQJ3AAECAxEEBSExBhJBUQdhcRMiMoEIFEKRobHBCSMzUvAVYnLRChYkNOEl8RcYGRomJygpKjU2Nzg5OkNERUZHSElKU1RVVldYWVpjZGVmZ2hpanN0dXZ3eHl6g4SFhoeIiYqSk5SVlpeYmZqio6Slpqeoqaqys7S1tre4ubrCw8TFxsfIycrS09TV1tfY2drh4uPk5ebn6Onq8fLz9PX29/j5+v/EAB8BAAMBAQEBAQEAAAAAAAABAAAECAwQFBgcICf/EAB8RAQEBAQAAAAABAAABAAAAAAIREiEUMQVhIj8QVVQoGhobHwMpKS/2gAMAwEAAhEDEQA/AP8A/wD//Z">
+    </div>
+
+    <div class="homepage-links">
+        <div class="links-title">我的主页</div>
+        <div class="links-row">
+            <span class="copy-link" data-url="https://space.bilibili.com/1176398798">https://space.bilibili.com/1176398798</span>
+            <span class="link-gap"></span>
+            <span class="copy-link" data-url="https://makerworld.com.cn/zh/@asdfghjkl870516">https://makerworld.com.cn/zh/@asdfghjkl870516</span>
+        </div>
+        <div class="info-line">网名：纯天然\无敌的小狗狗</div>
+        <div class="info-line">邮箱：asdfghjkl870516@qq.com</div>
+    </div>
+    <div class="models-section">
+        <div class="models-title">我的模型：</div>
+        <div class="model-line">选择题蒙答案：<span class="copy-link" data-url="https://makerworld.com.cn/zh/models/2637172-xuan-ze-ti-meng-da-an#profileId-3044610">https://makerworld.com.cn/zh/models/2637172-xuan-ze-ti-meng-da-an#profileId-3044610</span></div>
+        <div class="model-line">麦克纳姆轮：<span class="copy-link" data-url="https://makerworld.com.cn/zh/models/2215002-mai-ke-na-mu-lun#profileId-2487039">https://makerworld.com.cn/zh/models/2215002-mai-ke-na-mu-lun#profileId-2487039</span></div>
+        <div class="model-line">软管连接器 4mm：<span class="copy-link" data-url="https://makerworld.com.cn/zh/models/1941515-ruan-guan-lian-jie-qi-4mm#profileId-2156422">https://makerworld.com.cn/zh/models/1941515-ruan-guan-lian-jie-qi-4mm#profileId-2156422</span></div>
+        <div class="model-line">卡通圆球造型趣味摆件｜支持自定义文字整蛊桌游道具：<span class="copy-link" data-url="https://makerworld.com.cn/zh/models/2641013-qia-tong-yuan-qiu-zao-xing-qu-wei-bai-jian-zhi-chi#profileId-3049796">https://makerworld.com.cn/zh/models/2641013-qia-tong-yuan-qiu-zao-xing-qu-wei-bai-jian-zhi-chi#profileId-3049796</span></div>
+        <div class="model-line">伪 · 金手镯：<span class="copy-link" data-url="https://makerworld.com.cn/zh/models/2694438-wei-jin-shou-zhuo#profileId-3119753">https://makerworld.com.cn/zh/models/2694438-wei-jin-shou-zhuo#profileId-3119753</span></div>
+        <div class="model-line">收纳盒V2 0.4：<span class="copy-link" data-url="https://makerworld.com.cn/zh/models/2725422-shou-na-he-v2#profileId-3161377">https://makerworld.com.cn/zh/models/2725422-shou-na-he-v2#profileId-3161377</span></div>
+        <div class="model-line">收纳盒0.6：<span class="copy-link" data-url="https://makerworld.com.cn/zh/models/2724269-shou-na-he#profileId-3159807">https://makerworld.com.cn/zh/models/2724269-shou-na-he#profileId-3159807</span></div>
+        <div class="model-line">盒子 私房钱盒子：<span class="copy-link" data-url="https://makerworld.com.cn/zh/models/2843241-he-zi-si-fang-qian-he-zi#profileId-3321052">https://makerworld.com.cn/zh/models/2843241-he-zi-si-fang-qian-he-zi#profileId-3321052</span></div>
+        <div class="model-line">挠痒痒神器：<span class="copy-link" data-url="https://makerworld.com.cn/zh/models/2876227-nao-yang-yang-shen-qi#profileId-3365072#profileId-3321052">https://makerworld.com.cn/zh/models/2876227-nao-yang-yang-shen-qi#profileId-3365072</span></div>
+        <div class="model-line">劳动手工锯：<span class="copy-link" data-url="https://makerworld.com.cn/zh/models/2997711-lao-dong-shou-gong-ju#profileId-3520343#profileId-3321052">https://makerworld.com.cn/zh/models/2997711-lao-dong-shou-gong-ju#profileId-3520343</span></div>
+    </div>
+    <div id="toast"></div>
+<script>
+        const canvas = document.getElementById('sky');
+        const ctx = canvas.getContext('2d');
+
+        let width, height;
+        const stars = [];
+        const meteors = [];
+
+        // 调整画布尺寸为全屏
+        function resize() {
+            width = window.innerWidth;
+            height = window.innerHeight;
+            canvas.width = width;
+            canvas.height = height;
+        }
+
+        window.addEventListener('resize', resize);
+        resize();
+
+        // 生成随机数
+        function random(min, max) {
+            return Math.random() * (max - min) + min;
+        }
+
+        // 星星类：负责背景星星的闪烁
+        class Star {
+            constructor() {
+                this.reset();
+            }
+
+            reset() {
+                this.x = random(0, width);
+                this.y = random(0, height * 0.85); // 星星主要分布在天空上方
+                this.size = random(0.5, 2);
+                this.baseAlpha = random(0.2, 0.8);
+                this.alpha = this.baseAlpha;
+                this.twinkleSpeed = random(0.01, 0.04);
+                this.twinkleDir = Math.random() > 0.5 ? 1 : -1;
+            }
+
+            update() {
+                this.alpha += this.twinkleSpeed * this.twinkleDir;
+                if (this.alpha > this.baseAlpha + 0.2 || this.alpha > 1) {
+                    this.twinkleDir = -1;
+                }
+                if (this.alpha < this.baseAlpha - 0.2 || this.alpha < 0.1) {
+                    this.twinkleDir = 1;
+                }
+            }
+
+            draw() {
+                ctx.beginPath();
+                ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
+                ctx.fillStyle = `rgba(255, 255, 255, ${this.alpha})`;
+                ctx.fill();
+            }
+        }
+
+        // 流星类：负责彩色流星及拖尾效果
+        class Meteor {
+            constructor() {
+                this.reset(true);
+            }
+
+            reset(initial = false) {
+                // 流星从屏幕上方或右侧外进入
+                this.x = random(width * 0.2, width * 1.2);
+                this.y = random(-height * 0.2, height * 0.3);
+                this.length = random(100, 250);
+                this.speed = random(8, 16);
+                this.angle = Math.PI / 4 + random(-0.1, 0.1); // 大致向左下角划过
+                this.vx = -Math.cos(this.angle) * this.speed;
+                this.vy = Math.sin(this.angle) * this.speed;
+                this.size = random(1, 3);
+
+                // 随机彩色：青、蓝、紫、粉、绿、黄
+                const colors = [
+                    [0, 255, 255],   // 青色
+                    [0, 150, 255],   // 蓝色
+                    [180, 0, 255],   // 紫色
+                    [255, 0, 200],   // 粉色
+                    [0, 255, 120],   // 绿色
+                    [255, 220, 0]    // 黄色
+                ];
+                this.color = colors[Math.floor(Math.random() * colors.length)];
+                this.life = 1;
+                this.decay = random(0.005, 0.015);
+
+                // 初始时随机延迟，避免所有流星同时出现
+                if (initial) {
+                    this.active = Math.random() > 0.5;
+                } else {
+                    this.active = true;
+                }
+            }
+
+            update() {
+                if (!this.active) {
+                    if (Math.random() < 0.03) {
+                        this.reset();
+                    }
+                    return;
+                }
+
+                this.x += this.vx;
+                this.y += this.vy;
+                this.life -= this.decay;
+
+                // 流星飞出屏幕或透明度耗尽则重置
+                if (this.x < -this.length || this.y > height + this.length || this.life <= 0) {
+                    this.active = false;
+                }
+            }
+
+            draw() {
+                if (!this.active) return;
+
+                const tailX = this.x + Math.cos(this.angle) * this.length;
+                const tailY = this.y - Math.sin(this.angle) * this.length;
+
+                const gradient = ctx.createLinearGradient(this.x, this.y, tailX, tailY);
+                gradient.addColorStop(0, `rgba(${this.color[0]}, ${this.color[1]}, ${this.color[2]}, ${this.life})`);
+                gradient.addColorStop(0.4, `rgba(${this.color[0]}, ${this.color[1]}, ${this.color[2]}, ${this.life * 0.5})`);
+                gradient.addColorStop(1, `rgba(${this.color[0]}, ${this.color[1]}, ${this.color[2]}, 0)`);
+
+                ctx.beginPath();
+                ctx.moveTo(this.x, this.y);
+                ctx.lineTo(tailX, tailY);
+                ctx.strokeStyle = gradient;
+                ctx.lineWidth = this.size;
+                ctx.lineCap = 'round';
+                ctx.stroke();
+
+                // 流星头部高光
+                ctx.beginPath();
+                ctx.arc(this.x, this.y, this.size * 1.2, 0, Math.PI * 2);
+                ctx.fillStyle = `rgba(255, 255, 255, ${this.life})`;
+                ctx.fill();
+
+                // 头部光晕
+                const glow = ctx.createRadialGradient(this.x, this.y, 0, this.x, this.y, this.size * 6);
+                glow.addColorStop(0, `rgba(${this.color[0]}, ${this.color[1]}, ${this.color[2]}, ${this.life * 0.6})`);
+                glow.addColorStop(1, 'rgba(0, 0, 0, 0)');
+                ctx.fillStyle = glow;
+                ctx.beginPath();
+                ctx.arc(this.x, this.y, this.size * 6, 0, Math.PI * 2);
+                ctx.fill();
+            }
+        }
+
+        // 初始化星星
+        for (let i = 0; i < 300; i++) {
+            stars.push(new Star());
+        }
+
+        // 初始化流星
+        for (let i = 0; i < 40; i++) {
+            meteors.push(new Meteor());
+        }
+
+        // 动画循环
+        function animate() {
+            // 使用半透明黑色覆盖，制造轻微拖影效果
+            ctx.fillStyle = 'rgba(0, 0, 0, 0.3)';
+            ctx.fillRect(0, 0, width, height);
+
+            // 绘制星星
+            stars.forEach(star => {
+                star.update();
+                star.draw();
+            });
+
+            // 绘制流星
+            meteors.forEach(meteor => {
+                meteor.update();
+                meteor.draw();
+            });
+
+            requestAnimationFrame(animate);
+        }
+
+        // 点击链接复制到剪贴板
+        document.querySelectorAll('.copy-link').forEach(link => {
+            link.addEventListener('click', async () => {
+                const url = link.getAttribute('data-url');
+                try {
+                    if (navigator.clipboard && window.isSecureContext) {
+                        await navigator.clipboard.writeText(url);
+                    } else {
+                        const textarea = document.createElement('textarea');
+                        textarea.value = url;
+                        textarea.style.position = 'fixed';
+                        textarea.style.opacity = '0';
+                        document.body.appendChild(textarea);
+                        textarea.select();
+                        document.execCommand('copy');
+                        document.body.removeChild(textarea);
+                    }
+                    showToast('复制成功');
+                } catch (err) {
+                    showToast('复制失败');
+                }
+            });
+        });
+
+        function showToast(message) {
+            const toast = document.getElementById('toast');
+            toast.textContent = message;
+            toast.classList.add('show');
+            setTimeout(() => toast.classList.remove('show'), 2000);
+        }
+
+        animate();
+    </script>
+</body>
+</html>
